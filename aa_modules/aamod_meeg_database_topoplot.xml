@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<aap>
+    <tasklist>
+        <currenttask domain='meeg_session' desc='plot database values using FieldTrip' modality='MEEG'>
+            
+            <qsub>
+                <timeBase>0.25</timeBase>
+                <memoryBase>0.75</memoryBase>
+            </qsub>
+            
+            
+            <squeezedataframe></squeezedataframe>
+            
+            <complexityheaders></complexityheaders>
+            <complexityheadersbaseline></complexityheadersbaseline>    
+            
+            
+            <inputstreams>
+                <stream>meeg</stream>
+                <stream>dataframe</stream>
+            </inputstreams>
+            
+            <outputstreams>
+                <stream>topoplotarrays</stream>
+                <stream>topoplotmeegdata</stream>
+                <stream>dataframesqueezed</stream>
+            </outputstreams>
+            
+        </currenttask>
+    </tasklist>
+</aap>

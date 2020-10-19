@@ -152,6 +152,88 @@ switch task
                 end
             end
         end
+        
+% --- USING converttoeeglab TO APPEND BEHAVIOUR INFORMATION TO EEG MARKERS ---
+
+% (for each participant)
+%
+% 1. read in table:
+% - find the behaviour file '.mat' file
+% - load structure / table 
+% -- structure should be of dimensions n x number of participants, where 'n' 
+%    are the number of value labels
+%
+% 2. we now append relevant info to the main aap structure, within the 
+%    'behaviour' sub-structure
+%    | settings below are also outlined in 'aamod_meeg_converttoeeglab.xml'
+%    - '.subject': the subject for which to append information to
+%    - '.session': session number
+%    - '.eventtype': the label of the EEG marker to append information to
+%    - '.behav': structure that we loaded in
+
+% below is an example code
+
+% -----
+% for subj = tab.participant_id'
+%
+%    (1.)
+%    behav = load(spm_select('FPList',behavdir,strrep(subj{1}, 'sub-','')));
+%    behav = behav.structask;
+%
+%    (2.)
+%    aap.tasksettings.aamod_meeg_converttoeeglab.behaviour(end+1).subject = subj{1};
+%    aap.tasksettings.aamod_meeg_converttoeeglab.behaviour(end).session = '*';
+%    aap.tasksettings.aamod_meeg_converttoeeglab.behaviour(end).eventtype = 'S  2';
+%    aap.tasksettings.aamod_meeg_converttoeeglab.behaviour(end).taskstructure = behav;
+%
+% end
+% -----
+
+        % behaviour
+        % - grab subject/session specific variables from aap structure
+        behaviourSetting = aas_getsetting(aap,'behaviour'); % as cell array
+        behaviourSubj = behaviourSetting(strcmp({behaviourSetting.subject},aas_getsubjname(aap,subj)));
+        if isempty(behaviourSubj)
+            behaviourSubj = behaviourSetting(strcmp({behaviourSetting.extrafieldsstruct.participant_id},'*')); 
+        end    
+
+        behaviourSess = behaviourSubj(strcmp({behaviourSubj.session},aas_getsessname(aap,sess)));
+        if isempty(behaviourSess)
+            behaviourSess = behaviourSubj(strcmp({behaviourSubj.session},'*')); 
+        end  
+
+        % if, else
+        if numel(behaviourSess)>1
+            aas_log(aap,false,sprintf('ERROR: task structure for %s too large.',aas_getsessdesc(aap,subj,sess))); % false = warning, true = error
+        elseif isempty(behaviourSess)
+            aas_log(aap,false,sprintf('ERROR: task structure for %s is empty.',aas_getsessdesc(aap,subj,sess)))
+        else
+            structtask = behaviourSess.taskstructure;
+
+            % - do it
+            % Find all events with event marker of stimulus
+            allEventTypes = {EEG.event.type}'; %'
+            eventIdx = find(strcmp(allEventTypes, behaviourSess.eventtype));
+
+            % I and J to loop through event marker indexes and table indexes
+            I = zeros(1,numel(eventIdx))'; %' preallocate
+            for k=1:numel(eventIdx)
+                I(k) = k;
+            end
+            J = eventIdx;
+
+            allfieldnames = fieldnames(structtask);
+
+            % Integrate information into each stimulus marker
+            for k=1:numel(I)
+                i = I(k); % absolute number of epoch event
+                j = J(k); % index number of epoch event
+                for f=1:numel(fieldnames(structtask))
+                    fieldname = allfieldnames{f};
+                    EEG.event(j).(fieldname) = structtask(i).(fieldname);
+                end
+            end
+        end
 
         % diagnostics
         diagpath = fullfile(aas_getsesspath(aap,subj,sess),['diagnostic_' mfilename '_raw.jpg']);

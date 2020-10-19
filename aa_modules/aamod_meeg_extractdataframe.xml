@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<aap>
+    <tasklist>
+        <currenttask domain='meeg_session' desc='Create dataframe from epoched EEG acquisition' modality='MEEG'>
+            
+            <qsub>
+                <timeBase>0.15</timeBase>
+                <memoryBase>0.5</memoryBase>
+            </qsub>
+            
+            <extrafields desc='Extra fields for database'>
+                <subject desc='Subject name'></subject>
+                <session desc='Session number'></session>
+                <extrafieldsstruct desc='Structure containing fields and values'></extrafieldsstruct>
+            </extrafields>
+            
+            <includeeegevents desc='true/false to extract information from eeg event markers for each epoch trial'></includeeegevents>
+            
+            <includetrialnumber desc='true/false to include trial number per epoch'></includetrialnumber>
+            
+            <includecomplexityEpochTimeWindow desc='Epoch full time window for algorhithmic complexity calculation'></includecomplexityEpochTimeWindow>
+            <includecomplexityBaselineTimeWindow desc='Epoch baseline time window for algorhithmic complexity calculation'></includecomplexityBaselineTimeWindow>
+
+            
+            <inputstreams>
+                <stream>meeg</stream>                
+            </inputstreams>
+            
+            <outputstreams>
+                <stream>meeg</stream>
+                <stream>dataframe</stream>
+            </outputstreams>
+            
+            
+            
+            <diagnostics>
+            </diagnostics>
+            
+        </currenttask>
+    </tasklist>
+</aap>
